@@ -1,8 +1,9 @@
 #!/usr/bin/env make
 #
 # To develop for desinax organisation, clone, pull & push all repos within
-# a single directory structure, aided by this Makefile. One repo to rule
-# them all.
+# a single directory structure, aided by this Makefile.
+# One repo to rule them all.
+# See organisation on GitHub: https://github.com/desinax
 #
 
 # ------------------------------------------------------------------------
@@ -65,7 +66,8 @@ NODEMODBIN := node_modules/.bin
 
 ORG := git@github.com:desinax
 
-REPOS := vertical-grid typographic-grid responsive-menu css-styleguide
+REPOS   := css-styleguide
+MODULES := vertical-grid typographic-grid responsive-menu figure
 
 
 
@@ -81,22 +83,24 @@ REPOS := vertical-grid typographic-grid responsive-menu css-styleguide
 # 
 # target: clone              - Clone all repos
 .PHONY:  clone
-clone: clone-repos
+clone: clone-repos clone-modules
 	@$(call HELPTEXT,$@)
 
 
 
 # target: pull               - Pull latest from all repos
 .PHONY:  pull
-pull: pull-repos
+pull: pull-repos pull-modules
 	@$(call HELPTEXT,$@)
+	git pull
 
 
 
 # target: status             - Check status on all repos
 .PHONY:  status
-status: status-repos
+status: status-repos status-modules
 	@$(call HELPTEXT,$@)
+	git status
 
 
 
@@ -135,7 +139,7 @@ clean-cache:
 
 # target: clean-all          - Removes generated files and directories.
 .PHONY:  clean-all
-clean-all: clean clean-cache clean-repos
+clean-all: clean clean-cache clean-repos clean-modules
 	@$(call HELPTEXT,$@)
 	#rm -rf .bin vendor node_modules
 
@@ -245,13 +249,63 @@ check-repos:
 
 
 
-# # ------------------------------------------------------------------------
-# #
-# # Theme
-# #
-# # target: theme              - Do make build install in theme/ if available.
-# .PHONY: theme
-# theme:
-# 	@$(call HELPTEXT,$@)
-# 	[ ! -d theme ] || $(MAKE) --directory=theme build install
-# 	#[ ! -d theme ] || ( cd theme && make build install )
+# ------------------------------------------------------------------------
+#
+# Repos for modules
+#
+
+# target: clone-modules      - Clone all general repos.
+.PHONY: clone-modules
+clone-modules:
+	@$(call HELPTEXT,$@)
+	@cd modules;                            \
+	for repo in $(MODULES); do              \
+		$(call ACTION_MESSAGE,$$repo);      \
+		[ -d $$repo ]                       \
+			&& $(ECHO) "Repo already there, skipping cloning it." \
+			&& continue;                    \
+		git clone $(ORG)/$$repo.git;        \
+	done
+
+
+
+# target: pull-modules       - Pull latest for all general repos.
+.PHONY: pull-modules
+pull-modules:
+	@$(call HELPTEXT,$@)
+	@cd modules;                            \
+	for repo in $(MODULES); do              \
+		$(call ACTION_MESSAGE,$$repo);      \
+		(cd $$repo && git pull);            \
+	done
+
+
+
+# target: clean-modules      - Remove all top general repos.
+.PHONY: clean-modules
+clean-modules:
+	@$(call HELPTEXT,$@)
+	cd modules &rm -rf $(MODULES)
+
+
+# arget: status-modules     - Check status of each general repo.
+.PHONY: status-modules
+status-modules:
+	@$(call HELPTEXT,$@)
+	@cd modules;                                 \
+	for repo in $(MODULES); do                   \
+		$(call ACTION_MESSAGE,$$repo);           \
+		(cd $$repo && git status);               \
+	done
+
+
+
+# target: check-modules      - Check details of each general repo.
+.PHONY: check-modules
+check-modules:
+	@$(call HELPTEXT,$@)
+	@cd modules;                                    \
+	for repo in $(MODULES); do                      \
+		$(call ACTION_MESSAGE,$$repo);              \
+		du -sk $$repo/.git;                         \
+	done
