@@ -18,7 +18,6 @@ OS = $(shell uname -s)
 ECHO = echo
 
 # Make adjustments based on OS
-# http://stackoverflow.com/questions/3466166/how-to-check-if-running-in-cygwin-mac-or-linux/27776822#27776822
 ifneq (, $(findstring CYGWIN, $(OS)))
 	ECHO = /bin/echo -e
 endif
@@ -30,26 +29,27 @@ OK_COLOR	= \033[32;01m
 ERROR_COLOR	= \033[31;01m
 WARN_COLOR	= \033[33;01m
 
-# Which makefile am I in?
-WHERE-AM-I = $(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-THIS_MAKEFILE := $(call WHERE-AM-I)
-
-# Echo some nice helptext based on the target comment
-HELPTEXT = $(ECHO) "$(ACTION)--->" `egrep "^\# target: $(1) " $(THIS_MAKEFILE) | sed "s/\# target: $(1)[ ]*-[ ]* / /g"` "$(NO_COLOR)"
-
-# Check version  and path to command and display on one line
-CHECK_VERSION = printf "%-15s %-10s %s\n" "`basename $(1)`" "`$(1) --version $(2)`" "`which $(1)`"
-
 # Print out colored action message
 ACTION_MESSAGE = $(ECHO) "$(ACTION)---> $(1)$(NO_COLOR)"
 
+# Which makefile am I in?
+WHERE-AM-I = "$(CURDIR)/$(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))"
+THIS_MAKEFILE := $(call WHERE-AM-I)
 
+# Echo some nice helptext based on the target comment
+HELPTEXT = $(call ACTION_MESSAGE, $(shell egrep "^\# target: $(1) " $(THIS_MAKEFILE) | sed "s/\# target: $(1)[ ]*-[ ]* / /g"))
 
-# target: help               - Displays help.
+# Check version  and path to command and display on one line
+CHECK_VERSION = printf "%-15s %-10s %s\n" "$(shell basename $(1))" "`$(1) --version $(2)`" "`which $(1)`"
+
+# Get current working directory, it may not exist as environment variable.
+PWD = $(shell pwd)
+
+# target: help                    - Displays help.
 .PHONY:  help
 help:
 	@$(call HELPTEXT,$@)
-	@sed '/^$$/Q' $(THIS_MAKEFILE) | tail +3 | sed 's/#\s*//g'
+	@sed '/^$$/q' $(THIS_MAKEFILE) | tail +3 | sed 's/#\s*//g'
 	@$(ECHO) "Usage:"
 	@$(ECHO) " make [target] ..."
 	@$(ECHO) "target:"
@@ -67,7 +67,12 @@ NODEMODBIN := node_modules/.bin
 ORG := git@github.com:desinax
 
 REPOS   := css-styleguide
-MODULES := vertical-grid typographic-grid responsive-menu figure
+MODULES := \
+	figure \
+	responsive-menu \
+	theme \
+	typographic-grid \
+	vertical-grid \
 
 
 
