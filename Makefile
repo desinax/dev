@@ -67,12 +67,13 @@ NODEMODBIN := node_modules/.bin
 ORG := git@github.com:desinax
 
 REPOS   := css-styleguide
+THEMES := \
+	theme
 MODULES := \
 	figure \
 	responsive-menu \
-	theme \
 	typographic-grid \
-	vertical-grid \
+	vertical-grid
 
 
 
@@ -88,14 +89,14 @@ MODULES := \
 # 
 # target: clone              - Clone all repos
 .PHONY:  clone
-clone: clone-repos clone-modules
+clone: clone-repos clone-modules clone-themes
 	@$(call HELPTEXT,$@)
 
 
 
 # target: pull               - Pull latest from all repos
 .PHONY:  pull
-pull: pull-repos pull-modules
+pull: pull-repos pull-modules pull-themes
 	@$(call HELPTEXT,$@)
 	git pull
 
@@ -103,7 +104,7 @@ pull: pull-repos pull-modules
 
 # target: status             - Check status on all repos
 .PHONY:  status
-status: status-repos status-modules
+status: status-repos status-modules status-themes
 	@$(call HELPTEXT,$@)
 	git status
 
@@ -144,7 +145,7 @@ clean-cache:
 
 # target: clean-all          - Removes generated files and directories.
 .PHONY:  clean-all
-clean-all: clean clean-cache clean-repos clean-modules
+clean-all: clean clean-cache clean-repos clean-modules clean-themes
 	@$(call HELPTEXT,$@)
 	#rm -rf .bin vendor node_modules
 
@@ -311,6 +312,69 @@ check-modules:
 	@$(call HELPTEXT,$@)
 	@cd modules;                                    \
 	for repo in $(MODULES); do                      \
+		$(call ACTION_MESSAGE,$$repo);              \
+		du -sk $$repo/.git;                         \
+	done
+
+
+
+# ------------------------------------------------------------------------
+#
+# Repos for themes
+#
+
+# target: clone-themes      - Clone all general repos.
+.PHONY: clone-themes
+clone-themes:
+	@$(call HELPTEXT,$@)
+	@cd themes;                            \
+	for repo in $(THEMES); do              \
+		$(call ACTION_MESSAGE,$$repo);      \
+		[ -d $$repo ]                       \
+			&& $(ECHO) "Repo already there, skipping cloning it." \
+			&& continue;                    \
+		git clone $(ORG)/$$repo.git;        \
+	done
+
+
+
+# target: pull-themes       - Pull latest for all general repos.
+.PHONY: pull-themes
+pull-themes:
+	@$(call HELPTEXT,$@)
+	@cd themes;                            \
+	for repo in $(THEMES); do              \
+		$(call ACTION_MESSAGE,$$repo);      \
+		(cd $$repo && git pull);            \
+	done
+
+
+
+# target: clean-themes      - Remove all top general repos.
+.PHONY: clean-themes
+clean-themes:
+	@$(call HELPTEXT,$@)
+	cd themes &rm -rf $(THEMES)
+
+
+# arget: status-themes     - Check status of each general repo.
+.PHONY: status-themes
+status-themes:
+	@$(call HELPTEXT,$@)
+	@cd themes;                                 \
+	for repo in $(THEMES); do                   \
+		$(call ACTION_MESSAGE,$$repo);           \
+		(cd $$repo && git status);               \
+	done
+
+
+
+# target: check-themes      - Check details of each general repo.
+.PHONY: check-themes
+check-themes:
+	@$(call HELPTEXT,$@)
+	@cd themes;                                    \
+	for repo in $(THEMES); do                      \
 		$(call ACTION_MESSAGE,$$repo);              \
 		du -sk $$repo/.git;                         \
 	done
