@@ -71,22 +71,19 @@ THEMES := \
 	theme
 MODULES := \
 	figure \
+	general \
+	link \
+	mixin \
 	responsive-menu \
 	typographic-grid \
 	vertical-grid
 
 
 
-# # target: prepare            - Prepare for tests and build
-# .PHONY:  prepare
-# prepare:
-# 	@$(call HELPTEXT,$@)
-# 	[ -d .bin ] || mkdir .bin
-# 	[ -d build ] || mkdir build
-# 	rm -rf build/*
-# 
-# 
-# 
+# ------------------------------------------------------------------------
+#
+# Basic rules.
+#
 # target: clone              - Clone all repos
 .PHONY:  clone
 clone: clone-repos clone-modules clone-themes
