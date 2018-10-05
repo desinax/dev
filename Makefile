@@ -61,13 +61,13 @@ help:
 #
 # Specifics for this project.
 #
-BIN        := .bin
-NODEMODBIN := node_modules/.bin
+BIN = .bin
+NODEMODBIN = node_modules/.bin
 
-ORG := git@github.com:desinax
+ORG = git@github.com:desinax
 
-REPOS   := css-styleguide
-THEMES := \
+REPOS = css-styleguide
+THEMES = \
 	theme \
 	theme-dbwebb.se \
 	theme-cimage.se \
@@ -75,7 +75,7 @@ THEMES := \
 	theme-grillcon.dbwebb.se \
 	theme-mikaelroos.se \
 	theme-sifero.se
-MODULES := \
+MODULES = \
 	figure \
 	general \
 	link \
@@ -83,6 +83,8 @@ MODULES := \
 	responsive-menu \
 	typographic-grid \
 	vertical-grid
+
+ALL_REPOS = $(wildcard modules/*) $(wildcard repos/*) $(wildcard themes/*)
 
 
 
@@ -113,13 +115,18 @@ status: status-repos status-modules status-themes
 
 
 
-# # target: install            - Install all repos
-# .PHONY:  install
-# install:
-# 	@$(call HELPTEXT,$@)
-# 
-# 
-# 
+# target: install            - Do make install in each repo
+.PHONY:  install
+install:
+	@$(call HELPTEXT,$@)
+	for repo in $(ALL_REPOS) ; do           \
+		$(call ACTION_MESSAGE,$$repo);      \
+		(cd $$repo && make install)         \
+	done
+
+
+
+
 # target: update             - Update the repos and essentials.
 .PHONY:  update
 update:
@@ -135,22 +142,29 @@ update:
 .PHONY: clean
 clean:
 	@$(call HELPTEXT,$@)
+	for repo in $(ALL_REPOS) ; do           \
+		$(call ACTION_MESSAGE,$$repo);      \
+		(cd $$repo && make clean)           \
+	done
 
 
 
-# target: clean-cache        - Clean the cache.
-.PHONY:  clean-cache
-clean-cache:
-	@$(call HELPTEXT,$@)
-	#rm -rf cache/*/*
+# # target: clean-cache        - Clean the cache.
+# .PHONY:  clean-cache
+# clean-cache:
+# 	@$(call HELPTEXT,$@)
+# 	#rm -rf cache/*/*
 
 
 
 # target: clean-all          - Removes generated files and directories.
 .PHONY:  clean-all
-clean-all: clean clean-cache clean-repos clean-modules clean-themes
+clean-all: clean
 	@$(call HELPTEXT,$@)
-	#rm -rf .bin vendor node_modules
+	for repo in $(ALL_REPOS) ; do           \
+		$(call ACTION_MESSAGE,$$repo);      \
+		(cd $$repo && make clean-all)       \
+	done
 
 
 
@@ -161,11 +175,14 @@ clean-all: clean clean-cache clean-repos clean-modules clean-themes
 # 
 # 
 # 
-# # target: test               - Run all tests.
-# .PHONY: test
-# test: htmlhint stylelint eslint jsunittest
-# 	@$(call HELPTEXT,$@)
-# 	[ ! -f composer.json ] || composer validate
+# target: test               - Run all tests.
+.PHONY: test
+test:
+	@$(call HELPTEXT,$@)
+	for repo in $(ALL_REPOS) ; do        \
+		$(call ACTION_MESSAGE,$$repo);   \
+		(cd $$repo && make test)         \
+	done
 # 
 # 
 # 
@@ -176,10 +193,17 @@ clean-all: clean clean-cache clean-repos clean-modules clean-themes
 # 
 # 
 # 
-# # target: build              - Do all build
-# .PHONY: build
-# build: test doc #theme less-compile less-minify js-minify
-# 	@$(call HELPTEXT,$@)
+# target: build              - Do all build
+.PHONY: build
+build: test doc #theme less-compile less-minify js-minify
+	@$(call HELPTEXT,$@)
+	for repo in $(ALL_REPOS) ; do           \
+		$(call ACTION_MESSAGE,$$repo);      \
+		(cd $$repo && make build)           \
+	done
+
+
+
 # 
 # 
 # 
