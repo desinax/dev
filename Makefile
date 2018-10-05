@@ -68,7 +68,13 @@ ORG := git@github.com:desinax
 
 REPOS   := css-styleguide
 THEMES := \
-	theme
+	theme \
+	theme-dbwebb.se \
+	theme-cimage.se \
+	theme-design-course \
+	theme-grillcon.dbwebb.se \
+	theme-mikaelroos.se \
+	theme-sifero.se
 MODULES := \
 	figure \
 	general \
